@@ -12,11 +12,14 @@ import {Subscription} from "rxjs";
 export class LoginPageComponent implements OnInit, OnDestroy {
   aSub: Subscription | null = null
   form: FormGroup = new FormGroup({
-    email: new FormControl(null, [
-      Validators.required,
-      Validators.email
-    ]),
-    password: new FormControl(null, [
+    email: new FormControl(
+      'dmitriyskrill@gmail.com',
+      [
+        Validators.required,
+        Validators.email
+      ]
+    ),
+    password: new FormControl("123456", [
       Validators.required,
       Validators.minLength(6)
     ])
@@ -48,8 +51,8 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     this.form?.disable()
     this.aSub = this.auth.login(this.form?.value).subscribe({
-        next: () => {
-          console.log('navigateByUrl')
+        next: (tokenDto) => {
+          console.log('navigateByUrl', tokenDto)
           this.router.navigateByUrl('/home')
         },
         error: (error) => {
