@@ -1,26 +1,34 @@
 import {Injectable} from "@angular/core";
 import {IUser} from "../users/interfaces/user.interface";
 import {HttpClient} from "@angular/common/http";
-import {Observable, BehaviorSubject, tap} from "rxjs";
+import {Observable, tap} from "rxjs";
 import {TokenDto} from "./dto/token.dto";
 import {UserId} from "../users/userId.type";
+import RegisterDto from "./dto/register.dto";
+import {Router} from "@angular/router";
 
 @Injectable({providedIn: 'root'})
 export class AuthService {
+  private authUrl: string = 'http://localhost:5000/auth/'
   private _accessToken: string | null = null
   private _refreshToken: string | null = null
   private _userId: UserId | null = null
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {
 
   }
 
   get accessToken(): string | null {
-    return this._accessToken || localStorage.getItem('accessToken') || null
+    if (!this._accessToken && localStorage.getItem('accessToken')) {
+      this.accessToken = localStorage.getItem('accessToken')
+    }
+    return this._accessToken || null
   }
 
   set accessToken(token: string | null) {
-    console.log('accessToken', token)
     this._accessToken = token
     if (typeof token === 'string') {
       localStorage.setItem('accessToken', token)
@@ -30,7 +38,10 @@ export class AuthService {
   }
 
   get refreshToken(): string | null {
-    return this._refreshToken || localStorage.getItem('refreshToken') || null
+    if (!this._refreshToken && localStorage.getItem('refreshToken')) {
+      this.refreshToken = localStorage.getItem('refreshToken')
+    }
+    return this._refreshToken || null
   }
 
   set refreshToken(token: string | null) {
@@ -43,50 +54,72 @@ export class AuthService {
   }
 
   get userId(): UserId | null {
-    return this._userId || localStorage.getItem('userId') || null
+    if (!this._userId && localStorage.getItem('userId')) {
+      this.userId = localStorage.getItem('userId')
+    }
+    return this._userId || null
   }
 
   set userId(userId: UserId | null) {
     this._userId = userId
-    if (typeof userId === 'string') {
-      localStorage.setItem('userId', userId)
-    } else {
-      localStorage.removeItem('userId')
+    switch (typeof userId) {
+      case "string":
+        localStorage.setItem('userId', userId)
+        break
+      case "number":
+        localStorage.setItem('userId', userId.toString())
+        break
+      default:
+        localStorage.removeItem('userId')
     }
   }
 
   set tokenDto(tokenDto: TokenDto) {
-    console.log('tokenDto', tokenDto)
     this.accessToken = tokenDto.accessToken
     this.refreshToken = tokenDto.refreshToken
     this.userId = tokenDto.userId
   }
 
-  login(user: IUser): Observable<{ tokenDto: TokenDto }> {
-    console.log('login', user)
-    return this.http.post<{ tokenDto: TokenDto }>(
-      'http://localhost:5000/auth/login',
+  get isAuthenticated(): boolean {
+    return !!this.userId
+  }
+
+  clearTokenDto() {
+    this.accessToken = null
+    this.refreshToken = null
+    this.userId = null
+  }
+
+  login(user: IUser): Observable<TokenDto> {
+    return this.http.post<TokenDto>(
+      `${this.authUrl}login`,
       user,
       {withCredentials: true}
     )
-      .pipe(
-        // tap(
-        //   ({tokenDto}) => {
-        //     console.log('login', tokenDto)
-        //     if (!tokenDto) return
-        //     console.log('login', tokenDto)
-        //     this.tokenDto = tokenDto
-        //   }
-        // )
-        tap({
-          next: ({tokenDto}) => {
-            console.log('login', tokenDto)
-            if (!tokenDto) return
-            console.log('login', tokenDto)
-            this.tokenDto = tokenDto
-          }
-        })
-      )
+      .pipe(tap({
+        next: (tokenDto) => {
+          if (!tokenDto) return
+          this.tokenDto = tokenDto
+        }
+      }))
+  }
+
+  logout(): void {
+    this.clearTokenDto()
+    this.router.navigate(['/login'])
+    console.log('logout')
+    // TODO 12
+    this.http.post(
+      `${this.authUrl}logout`,
+      {withCredentials: true}
+    )
+      .pipe(tap({
+        next: () => {
+          console.log('logout 2')
+          // this.clearTokenDto()
+          // this.router.navigate(['/login'])
+        }
+      }))
   }
 
   getAuthUser(userId: number) {
@@ -95,14 +128,23 @@ export class AuthService {
     )
   }
 
-  updateAccessCookie() {
-    return this.http.get('http://localhost:3000/updateAccessToken', {
-      withCredentials: true,
-    });
+  updateAccessToken() {
+    return this.http.get(
+      `${this.authUrl}updateAccessToken`,
+      {withCredentials: true});
   }
 
-  registration() {
-
+  registration(registerDto: RegisterDto): Observable<TokenDto> {
+    return this.http.post<TokenDto>(
+      `${this.authUrl}registration`,
+      registerDto,
+      {withCredentials: true}
+    ).pipe(tap({
+      next: (tokenDto) => {
+        if (!tokenDto) return
+        this.tokenDto = tokenDto
+      }
+    }))
   }
 
 

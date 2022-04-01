@@ -8,7 +8,9 @@ import {SiteLayoutComponent}
 import {RegistrationPageComponent}
   from "./registration-page/registration-page.component";
 import {HomePageComponent} from "./home-page/home-page.component";
-import {DashboardComponent} from "./dashboard/dashboard.component";
+import {AuthGuard} from "./shared/classes/auth.guard";
+import {UsersPageComponent} from "./users-page/users-page.component";
+import {UserFormComponent} from "./users-page/user-form/user-form.component";
 
 const routes: Routes = [
   {
@@ -17,11 +19,17 @@ const routes: Routes = [
       {path: 'login', component: LoginPageComponent},
       {path: 'registration', component: RegistrationPageComponent},
       {path: 'home', component: HomePageComponent},
+      {path: 'users', component: UsersPageComponent},
+      {path: 'user/new', component: UserFormComponent},
+      {path: 'user/:id', component: UserFormComponent}
     ]
   },
   {
-    path: '', component: SiteLayoutComponent, children: [
-      {path: 'dashboard', component: DashboardComponent}
+    path: '',
+    component: SiteLayoutComponent,
+    canActivate: [AuthGuard],
+    children: [
+
     ]
   },
 ];

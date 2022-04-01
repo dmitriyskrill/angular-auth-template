@@ -13,7 +13,7 @@ export class HomePageComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.auth.getAuthUser(6).subscribe({
+    this.auth.getAuthUser(8).subscribe({
       next: () => {
         console.log('getAuthUser')
 
