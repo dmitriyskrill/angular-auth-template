@@ -1,24 +1,28 @@
 import {Injectable} from "@angular/core";
-import {IUser} from "../users/interfaces/user.interface";
-import {HttpClient} from "@angular/common/http";
-import {Observable, tap} from "rxjs";
-import {TokenDto} from "./dto/token.dto";
-import {UserId} from "../users/userId.type";
-import RegisterDto from "./dto/register.dto";
 import {Router} from "@angular/router";
+import {Observable, tap} from "rxjs";
 
-@Injectable({providedIn: 'root'})
+import {UserId} from "../types/userId.type";
+
+import {IUser} from "../interfaces/user.interface";
+import ITokenData from "../interfaces/token-data.interface";
+import RegisterDto from "../interfaces/user-register.interface";
+
+import {AuthHttpService} from "./auth-http.service";
+import IUserRegister from "../interfaces/user-register.interface";
+
+@Injectable({providedIn: "root"})
 export class AuthService {
-  private authUrl: string = 'http://localhost:5000/auth/'
+
   private _accessToken: string | null = null
   private _refreshToken: string | null = null
   private _userId: UserId | null = null
+  private _authUser: IUser | null = null
 
   constructor(
-    private http: HttpClient,
+    private authHttpService: AuthHttpService,
     private router: Router
   ) {
-
   }
 
   get accessToken(): string | null {
@@ -74,14 +78,22 @@ export class AuthService {
     }
   }
 
-  set tokenDto(tokenDto: TokenDto) {
-    this.accessToken = tokenDto.accessToken
-    this.refreshToken = tokenDto.refreshToken
-    this.userId = tokenDto.userId
+  set tokenData(tokenData: ITokenData) {
+    this.accessToken = tokenData.accessToken
+    this.refreshToken = tokenData.refreshToken
+    this.userId = tokenData.userId
   }
 
   get isAuthenticated(): boolean {
     return !!this.userId
+  }
+
+  get authUser(): IUser | null {
+    return this._authUser
+  }
+
+  set authUser(user: IUser | null) {
+    this._authUser = user
   }
 
   clearTokenDto() {
@@ -90,61 +102,36 @@ export class AuthService {
     this.userId = null
   }
 
-  login(user: IUser): Observable<TokenDto> {
-    return this.http.post<TokenDto>(
-      `${this.authUrl}login`,
-      user,
-      {withCredentials: true}
-    )
-      .pipe(tap({
-        next: (tokenDto) => {
-          if (!tokenDto) return
-          this.tokenDto = tokenDto
-        }
-      }))
+  login(user: IUser): void {
+    this.authHttpService.login(user).subscribe((tokenData: ITokenData) => {
+      if (!tokenData) return
+      this.tokenData = tokenData
+    })
   }
 
   logout(): void {
     this.clearTokenDto()
     this.router.navigate(['/login'])
-    console.log('logout')
-    // TODO 12
-    this.http.post(
-      `${this.authUrl}logout`,
-      {withCredentials: true}
-    )
-      .pipe(tap({
-        next: () => {
-          console.log('logout 2')
-          // this.clearTokenDto()
-          // this.router.navigate(['/login'])
-        }
-      }))
+    this.authHttpService.logout()
   }
 
-  getAuthUser(userId: number) {
-    return this.http.get<IUser>(
-      `http://localhost:5000/users/${userId}`
-    )
+  getAuthUser(userId: UserId) {
+    return this.authHttpService.getAuthUser(userId)
+      .subscribe((authUser: IUser) => {
+        this.authUser = authUser
+      })
   }
 
   updateAccessToken() {
-    return this.http.get(
-      `${this.authUrl}updateAccessToken`,
-      {withCredentials: true});
+    return this.authHttpService.updateAccessToken();
   }
 
-  registration(registerDto: RegisterDto): Observable<TokenDto> {
-    return this.http.post<TokenDto>(
-      `${this.authUrl}registration`,
-      registerDto,
-      {withCredentials: true}
-    ).pipe(tap({
-      next: (tokenDto) => {
-        if (!tokenDto) return
-        this.tokenDto = tokenDto
-      }
-    }))
+  registration(userRegister: IUserRegister) {
+    this.authHttpService.registration(userRegister)
+      .subscribe((tokenData: ITokenData) => {
+        if (!tokenData) return
+        this.tokenData = tokenData
+      })
   }
 
 

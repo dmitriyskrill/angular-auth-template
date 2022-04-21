@@ -1,9 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {AuthService} from "../shared/auth/auth.service";
+import {AuthService} from "../services/auth.service";
 import {Router} from "@angular/router";
-import {MaterialService} from "../shared/classes/material.service";
+import {MaterialService} from "../classes/material.service";
 
 @Component({
   selector: 'app-registration-page',
@@ -12,7 +12,6 @@ import {MaterialService} from "../shared/classes/material.service";
 })
 export class RegistrationPageComponent implements OnInit, OnDestroy {
 
-  aSub: Subscription | null = null
   form: FormGroup = new FormGroup({
     email: new FormControl(
       'dmitriyskrill@gmail.com',
@@ -33,32 +32,19 @@ export class RegistrationPageComponent implements OnInit, OnDestroy {
     ])
   })
 
-  constructor(
-    private auth: AuthService,
-    private router: Router,
-  ) {
+  constructor(    private auth: AuthService  ) {
   }
 
   ngOnInit(): void {
   }
 
   ngOnDestroy(): void {
-    this.aSub?.unsubscribe()
+
   }
 
   onSubmit(): void {
     this.form?.disable()
-    this.aSub = this.auth.registration(this.form?.value).subscribe({
-        next: (tokenDto) => {
-          this.router.navigateByUrl('/home')
-        },
-        error: (error) => {
-          // TODO 11
-          MaterialService.toast(error.error.message)
-          this.form.enable()
-        }
-      }
-    )
+    this.auth.registration(this.form?.value)
   }
 
 }
