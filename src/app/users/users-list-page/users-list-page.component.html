@@ -3,7 +3,7 @@
     class="collection-item"
     *ngFor="let user of users"
   >
-    <a [routerLink]="['/user', user.id]">
+    <a [routerLink]="['/users', user.id]">
       {{user.id}} -
       {{user.email}}
     </a>

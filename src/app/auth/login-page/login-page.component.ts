@@ -2,8 +2,6 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {AuthService} from "../services/auth.service";
 
-import {MaterialService} from "../classes/material.service";
-
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',

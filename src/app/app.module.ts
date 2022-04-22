@@ -11,22 +11,17 @@ import {
 } from './shared/layouts/site-layout/site-layout.component';
 
 import {HomePageComponent} from './home-page/home-page.component';
-import {HttpUsersService} from "./shared/users/http-users.service";
-import {UsersPageComponent} from './users-page/users-page.component';
 
-import {UserFormComponent} from './users-page/user-form/user-form.component';
 import {AuthModule} from "./auth/auth.module";
+import {UsersModule} from "./users/users.module";
 
 
 @NgModule({
   declarations: [
     AppComponent,
-
     SiteLayoutComponent,
-
     HomePageComponent,
-    UsersPageComponent,
-    UserFormComponent
+
   ],
   imports: [
     BrowserModule,
@@ -34,10 +29,10 @@ import {AuthModule} from "./auth/auth.module";
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    AuthModule
+    AuthModule,
+    UsersModule
   ],
   providers: [
-    HttpUsersService,
   ],
   bootstrap: [AppComponent]
 })

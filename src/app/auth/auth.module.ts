@@ -1,5 +1,5 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {LoginPageComponent} from './login-page/login-page.component';
 import {
   AuthLayoutComponent
@@ -10,8 +10,7 @@ import {
 import {TokenInterceptor} from "./classes/token.interceptor";
 import {HTTP_INTERCEPTORS} from "@angular/common/http";
 import {ReactiveFormsModule} from "@angular/forms";
-import {AppRoutingModule} from "./auth-routing.module";
-import {AuthService} from "./services/auth.service";
+import {AuthRoutingModule} from "./auth-routing.module";
 
 @NgModule({
   declarations: [
@@ -29,10 +28,9 @@ import {AuthService} from "./services/auth.service";
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    AppRoutingModule
+    AuthRoutingModule
   ],
-  exports:[
-
-  ]
+  exports: []
 })
-export class AuthModule { }
+export class AuthModule {
+}

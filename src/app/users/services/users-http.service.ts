@@ -1,11 +1,11 @@
 import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
-import {IUser} from "./interfaces/user.interface";
+import {IUser} from "../interfaces/user.interface";
 import {Observable} from "rxjs";
-import {UserId} from "./userId.type";
+import {UserId} from "../types/userId.type";
 
-@Injectable()
-export class HttpUsersService {
+@Injectable({providedIn: "root"})
+export class UsersHttpService {
   private usersUrl: string = 'http://localhost:5000/users/'
 
   constructor(private http: HttpClient) {

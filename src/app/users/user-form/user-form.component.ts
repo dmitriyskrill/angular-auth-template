@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {IUser} from "../../shared/users/interfaces/user.interface";
+import {IUser} from "../interfaces/user.interface";
 import {ActivatedRoute, Params, Router} from "@angular/router";
-import {HttpUsersService} from "../../shared/users/http-users.service";
+import {UsersHttpService} from "../services/users-http.service";
 import {of, switchMap} from "rxjs";
 import {MaterialService} from "../../shared/classes/material.service";
 
@@ -17,7 +17,7 @@ export class UserFormComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private httpUsersService: HttpUsersService,
+    private usersHttpService: UsersHttpService,
     private router: Router
   ) {
   }
@@ -29,7 +29,7 @@ export class UserFormComponent implements OnInit {
           (params: Params) => {
             if (params['id']) {
               this.isNew = false
-              return this.httpUsersService.getById(params['id'])
+              return this.usersHttpService.getById(params['id'])
             }
 
             return of(null)
